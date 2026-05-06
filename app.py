@@ -102,10 +102,11 @@ def create_app() -> Flask:
     def index() -> str:
         error_message = None
         messages = []
-        try:
-            messages = list_messages()
-        except Exception:
-            error_message = "Message storage is temporarily unavailable. Please try again shortly."
+        if app.config["SCHEMA_READY"]:
+            try:
+                messages = list_messages()
+            except Exception:
+                error_message = "Message storage is temporarily unavailable. Please try again shortly."
         return render_template_string(
             INDEX_TEMPLATE,
             error_message=error_message,

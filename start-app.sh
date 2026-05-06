@@ -5,7 +5,5 @@ set -e
 export PORT="${PORT:-8080}"
 
 cd /opt/app
-for i in $(seq 1 240); do
-  echo "startup ready ${i}"
-done
+: > /.sprite/logs/services/app.log 2>/dev/null || true
 exec /opt/app/.venv/bin/gunicorn --bind "0.0.0.0:${PORT}" app:app
