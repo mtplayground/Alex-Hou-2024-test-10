@@ -1,10 +1,14 @@
 .git
-.gitignore
+.claude
+.gh_token
+.github_token
+target/debug
+target/wasm32-unknown-unknown
+node_modules
 .venv
 __pycache__/
 *.py[cod]
-.gh_token
 .database_url
+.env
 .env.production
 .progress
-.claude/
