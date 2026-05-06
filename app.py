@@ -1,6 +1,8 @@
-from flask import Flask, render_template_string
+from http import HTTPStatus
 
-from db import initialize_schema, list_messages
+from flask import Flask, redirect, render_template_string, request
+
+from db import initialize_schema, insert_message, list_messages
 
 
 INDEX_TEMPLATE = """
@@ -84,6 +86,17 @@ def create_app() -> Flask:
     @app.get("/")
     def index() -> str:
         return render_template_string(INDEX_TEMPLATE, messages=list_messages())
+
+    @app.post("/messages")
+    def create_message():
+        name = request.form.get("name", "").strip()
+        text = request.form.get("text", "").strip()
+
+        if not name or not text:
+            return ("Both name and text are required.", HTTPStatus.BAD_REQUEST)
+
+        insert_message(name=name, text=text)
+        return redirect("/", code=HTTPStatus.SEE_OTHER)
 
     return app
 
