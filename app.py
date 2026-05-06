@@ -103,7 +103,6 @@ def create_app() -> Flask:
         error_message = None
         messages = []
         try:
-            ensure_schema()
             messages = list_messages()
         except Exception:
             error_message = "Message storage is temporarily unavailable. Please try again shortly."
