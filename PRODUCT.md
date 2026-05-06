@@ -1,6 +1,6 @@
 # Product Snapshot
 
-This repository is an early-stage Flask message board backed by PostgreSQL. As of `main` today, the project includes the application entrypoint, database connection/bootstrap logic, and deployment packaging, but the user-facing message routes are still pending.
+This repository is an early-stage Flask message board backed by PostgreSQL. As of `main` today, the project includes the application entrypoint, database connection/bootstrap logic, deployment packaging, and a homepage that renders the message submission form and stored messages.
 
 ## What Exists
 
@@ -13,6 +13,8 @@ This repository is an early-stage Flask message board backed by PostgreSQL. As o
 - A minimal Flask application entrypoint exists in `app.py`.
 - PostgreSQL access is centralized in `db.py`, which reads `DATABASE_URL` from the environment.
 - App startup bootstraps the `messages` table automatically with `CREATE TABLE IF NOT EXISTS`.
+- `GET /` renders an inline HTML page with `name` and `text` inputs plus the current message list.
+- Messages are read from PostgreSQL and displayed newest first by `created_at DESC`.
 - `README.md` documents the basic setup flow for creating a virtualenv, installing dependencies, and exporting `DATABASE_URL`.
 
 ## Intended Product Direction
@@ -24,5 +26,6 @@ The product is taking shape as a Flask web app that stores persistent message da
 - Keep configuration environment-driven; do not hardcode database credentials.
 - Treat PostgreSQL as the only persistent datastore.
 - Initialize required database schema during app startup.
+- Keep the current UI server-rendered with `render_template_string`.
 - Use the container image as the intended production packaging format.
 - Keep repository docs accurate to the merged `main` branch state, even when later issues are still pending.
