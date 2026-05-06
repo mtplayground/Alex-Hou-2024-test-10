@@ -32,7 +32,7 @@ def get_database_url() -> str:
 
 
 def get_connection() -> PGConnection:
-    return psycopg2.connect(get_database_url())
+    return psycopg2.connect(get_database_url(), connect_timeout=5)
 
 
 @contextmanager

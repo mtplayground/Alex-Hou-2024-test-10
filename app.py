@@ -46,10 +46,20 @@ INDEX_TEMPLATE = """
       .empty {
         color: #57606a;
       }
+      .warning {
+        background: #fff8c5;
+        border: 1px solid #d4a72c;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1rem;
+      }
     </style>
   </head>
   <body>
     <h1>Message Board</h1>
+    {% if error_message %}
+      <p class="warning">{{ error_message }}</p>
+    {% endif %}
     <form action="/messages" method="post">
       <label for="name">Name</label>
       <input id="name" name="name" type="text" required>
@@ -81,11 +91,27 @@ INDEX_TEMPLATE = """
 
 def create_app() -> Flask:
     app = Flask(__name__)
-    initialize_schema()
+    app.config["SCHEMA_READY"] = False
+
+    def ensure_schema() -> None:
+        if not app.config["SCHEMA_READY"]:
+            initialize_schema()
+            app.config["SCHEMA_READY"] = True
 
     @app.get("/")
     def index() -> str:
-        return render_template_string(INDEX_TEMPLATE, messages=list_messages())
+        error_message = None
+        messages = []
+        try:
+            ensure_schema()
+            messages = list_messages()
+        except Exception:
+            error_message = "Message storage is temporarily unavailable. Please try again shortly."
+        return render_template_string(
+            INDEX_TEMPLATE,
+            error_message=error_message,
+            messages=messages,
+        )
 
     @app.post("/messages")
     def create_message():
@@ -95,7 +121,14 @@ def create_app() -> Flask:
         if not name or not text:
             return ("Both name and text are required.", HTTPStatus.BAD_REQUEST)
 
-        insert_message(name=name, text=text)
+        try:
+            ensure_schema()
+            insert_message(name=name, text=text)
+        except Exception:
+            return (
+                "Message storage is temporarily unavailable. Please try again shortly.",
+                HTTPStatus.SERVICE_UNAVAILABLE,
+            )
         return redirect("/", code=HTTPStatus.SEE_OTHER)
 
     return app
