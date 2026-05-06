@@ -63,3 +63,16 @@ def list_messages() -> list[MessageRecord]:
             )
             rows = cursor.fetchall()
     return [MessageRecord(**row) for row in rows]
+
+
+def insert_message(name: str, text: str) -> None:
+    with connect() as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO messages (name, text)
+                VALUES (%s, %s)
+                """,
+                (name, text),
+            )
+        connection.commit()
