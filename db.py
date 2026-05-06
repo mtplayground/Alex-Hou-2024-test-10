@@ -1,8 +1,9 @@
 import os
 from contextlib import contextmanager
-from typing import Iterator
+from typing import Iterator, TypedDict
 
 import psycopg2
+from psycopg2.extras import RealDictCursor
 from psycopg2.extensions import connection as PGConnection
 
 
@@ -14,6 +15,13 @@ CREATE TABLE IF NOT EXISTS messages (
     created_at timestamptz default now()
 )
 """
+
+
+class MessageRecord(TypedDict):
+    id: int
+    name: str
+    text: str
+    created_at: object
 
 
 def get_database_url() -> str:
@@ -41,3 +49,17 @@ def initialize_schema() -> None:
         connection.autocommit = True
         with connection.cursor() as cursor:
             cursor.execute(SCHEMA_SQL)
+
+
+def list_messages() -> list[MessageRecord]:
+    with connect() as connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                SELECT id, name, text, created_at
+                FROM messages
+                ORDER BY created_at DESC
+                """
+            )
+            rows = cursor.fetchall()
+    return [MessageRecord(**row) for row in rows]
